@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0; NET47; NET452</TargetFrameworks>
+    <Authors>Sewer56</Authors>
+    <Company />
+    <Product>Reloaded</Product>
+    <Description>Advanced DLL Injector capable of injecting x86 DLLs to x86 process from x64 processes.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseUrl>https://github.com/Reloaded-Project/Reloaded.Injector/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Reloaded-Project/Reloaded.Injector</PackageProjectUrl>
+    <PackageIconUrl>https://avatars1.githubusercontent.com/u/45473408</PackageIconUrl>
+    <RepositoryUrl>https://github.com/Reloaded-Project/Reloaded.Injector</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Injector.cs~RF132a383.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PeNet" Version="0.8.1" />
+    <PackageReference Include="Reloaded.Assembler" Version="1.0.3" />
+    <PackageReference Include="Reloaded.Memory" Version="1.2.0" />
+    <PackageReference Include="Reloaded.Memory.Buffers" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <NativeLibs Remove="Shellcode.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <NativeLibs Remove="CheckArchitecture.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Windows.Forms.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <NativeLibs Remove="ModuleCollector.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <NativeLibs Remove="Safety.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <NativeLibs Remove="CuteLewdNekos.cs" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,4 @@
+cd /D "%~dp0"
+del Coverage.xml
+OpenCover\OpenCover.Console.exe -register:user -target:"XUnit\xunit.console.exe" -targetargs:"..\Source\Reloaded.Injector.Tests.X64\bin\x64\Debug\net472\Reloaded.Injector.Tests.X64.dll -noshadow" -output:".\Coverage.xml" -excludebyattribute:*.ExcludeFromCodeCoverage* -filter:"+[Reloaded.Injector*]* -[Reloaded.Injector.Tests*]*" -searchdirs:"..\Source\Reloaded.Injector.Tests.X64\bin\x64\Debug\net472\"
+OpenCover\OpenCover.Console.exe -register:user -target:"XUnit\xunit.console.x86.exe" -targetargs:"..\Source\Reloaded.Injector.Tests.X86\bin\x86\Debug\net472\Reloaded.Injector.Tests.X86.dll -noshadow" -output:".\Coverage.xml" -excludebyattribute:*.ExcludeFromCodeCoverage* -filter:"+[Reloaded.Injector*]* -[Reloaded.Injector.Tests*]*" -mergeoutput -searchdirs:"..\Source\Reloaded.Injector.Tests.X86\bin\x86\Debug\net472\"

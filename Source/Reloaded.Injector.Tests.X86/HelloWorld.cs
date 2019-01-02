@@ -1,0 +1,133 @@
+using Reloaded.Injector.Shared;
+using Xunit;
+
+namespace Reloaded.Injector.Tests.X86
+{
+    public class HelloWorld : IClassFixture<HelloWorldFixture>
+    {
+        private const string InjectModule32     = "Reloaded.Injector.Tests.Dll32.dll";
+        private const string CalculatorAdd      = "Add";
+        private const string CalculatorSubtract = "Subtract";
+        private const string CalculatorMultiply = "Multiply";
+        private const string CalculatorDivide   = "Divide";
+
+        /* For testing on low end hardware. Reduce this value for faster tests. */
+        private const int XLoops = 15;
+        private const int YLoops = 15;
+
+        private HelloWorldFixture _helloWorldFixture;
+        
+        public HelloWorld(HelloWorldFixture helloWorldFixture)
+        {
+            _helloWorldFixture = helloWorldFixture;
+        }
+
+        /* Shellcode Test */
+
+        [Fact]
+        public void GetFunctionAddress32()
+        {
+            var addAddress = _helloWorldFixture.Injector32.GetFunctionAddress(InjectModule32, CalculatorAdd);
+            var subAddress = _helloWorldFixture.Injector32.GetFunctionAddress(InjectModule32, CalculatorSubtract);
+            var mulAddress = _helloWorldFixture.Injector32.GetFunctionAddress(InjectModule32, CalculatorMultiply);
+            var divAddress = _helloWorldFixture.Injector32.GetFunctionAddress(InjectModule32, CalculatorDivide);
+
+            Assert.NotEqual(0, addAddress);
+            Assert.NotEqual(0, subAddress);
+            Assert.NotEqual(0, mulAddress);
+            Assert.NotEqual(0, divAddress);
+        }
+
+        /* Calculator Test */
+
+        [Fact]
+        public void Add32()
+        {
+            Injector injector = new Injector(_helloWorldFixture.Target32);
+            try { injector.Inject(InjectModule32); } catch { } // May already be injected.
+
+            for (int x = 0; x < XLoops; x++)
+            {
+                for (int y = YLoops; y > 0; y--)
+                {
+                    int expected = x + y;
+                    int result = injector.CallFunction(InjectModule32, CalculatorAdd, new TwoNumbers(x, y));
+
+                    Assert.Equal(expected, result);
+                }
+            }
+
+            injector.Eject(InjectModule32);
+        }
+
+        [Fact]
+        public void Subtract32()
+        {
+            for (int x = 0; x < XLoops; x++)
+            {
+                for (int y = YLoops; y > 0; y--)
+                {
+                    int expected = x - y;
+                    int result = _helloWorldFixture.Injector32.CallFunction(InjectModule32, CalculatorSubtract, new TwoNumbers(x, y));
+
+                    Assert.Equal(expected, result);
+                }
+            }
+        }
+        
+        [Fact]
+        public void Multiply32()
+        {
+            for (int x = 0; x < XLoops; x++)
+            {
+                for (int y = YLoops; y > 0; y--)
+                {
+                    int expected = x * y;
+                    int result = _helloWorldFixture.Injector32.CallFunction(InjectModule32, CalculatorMultiply, new TwoNumbers(x, y));
+
+                    Assert.Equal(expected, result);
+                }
+            }
+        }
+        
+        [Fact]
+        public void Divide32()
+        {
+            for (int x = 0; x < XLoops; x++)
+            {
+                for (int y = YLoops; y > 0; y--)
+                {
+                    int expected = x / y;
+                    int result = _helloWorldFixture.Injector32.CallFunction(InjectModule32, CalculatorDivide, new TwoNumbers(x, y));
+
+                    Assert.Equal(expected, result);
+                }
+            }
+        }
+
+        [Fact]
+        public void All32()
+        {
+            for (int x = 0; x < XLoops; x++)
+            {
+                for (int y = YLoops; y > 0; y--)
+                {
+                    int addExpected = x + y;
+                    int subExpected = x - y;
+                    int mulExpected = x * y;
+                    int divExpected = x / y;
+
+                    int addResult = _helloWorldFixture.Injector32.CallFunction(InjectModule32, CalculatorAdd, new TwoNumbers(x, y));
+                    int subResult = _helloWorldFixture.Injector32.CallFunction(InjectModule32, CalculatorSubtract, new TwoNumbers(x, y));
+                    int mulResult = _helloWorldFixture.Injector32.CallFunction(InjectModule32, CalculatorMultiply, new TwoNumbers(x, y));
+                    int divResult = _helloWorldFixture.Injector32.CallFunction(InjectModule32, CalculatorDivide, new TwoNumbers(x, y));
+
+                    Assert.Equal(addExpected, addResult);
+                    Assert.Equal(subExpected, subResult);
+                    Assert.Equal(mulExpected, mulResult);
+                    Assert.Equal(divExpected, divResult);
+                }
+            }
+        }
+    }
+}

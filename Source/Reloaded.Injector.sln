@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reloaded.Injector", "Reloaded.Injector\Reloaded.Injector.csproj", "{9560FF17-DB47-488A-AAC1-98A247D13AEE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reloaded.Injector.Tests.X86", "Reloaded.Injector.Tests.X86\Reloaded.Injector.Tests.X86.csproj", "{5BE91758-E6B1-4584-B6A1-14A5D6452461}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reloaded.Injector.Tests.X64", "Reloaded.Injector.Tests.X64\Reloaded.Injector.Tests.X64.csproj", "{EA753687-A4BB-47B9-9512-D1207654B07E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reloaded.Injector.Tests.Dll32", "Reloaded.Injector.Tests.Dll32\Reloaded.Injector.Tests.Dll32.csproj", "{E128F48A-6A39-4699-89D4-39A97974F533}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reloaded.Injector.Tests.Dll64", "Reloaded.Injector.Tests.Dll64\Reloaded.Injector.Tests.Dll64.csproj", "{A24706E2-EB50-4716-B036-C747462C4E93}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reloaded.Injector.Shared", "Reloaded.Injector.Shared\Reloaded.Injector.Shared.csproj", "{73BE9C7A-F7E8-4CD3-A48C-6CBB541DAED6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9560FF17-DB47-488A-AAC1-98A247D13AEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9560FF17-DB47-488A-AAC1-98A247D13AEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9560FF17-DB47-488A-AAC1-98A247D13AEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9560FF17-DB47-488A-AAC1-98A247D13AEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BE91758-E6B1-4584-B6A1-14A5D6452461}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{5BE91758-E6B1-4584-B6A1-14A5D6452461}.Debug|Any CPU.Build.0 = Debug|x86
+		{5BE91758-E6B1-4584-B6A1-14A5D6452461}.Release|Any CPU.ActiveCfg = Release|x86
+		{5BE91758-E6B1-4584-B6A1-14A5D6452461}.Release|Any CPU.Build.0 = Release|x86
+		{EA753687-A4BB-47B9-9512-D1207654B07E}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{EA753687-A4BB-47B9-9512-D1207654B07E}.Debug|Any CPU.Build.0 = Debug|x64
+		{EA753687-A4BB-47B9-9512-D1207654B07E}.Release|Any CPU.ActiveCfg = Release|x64
+		{EA753687-A4BB-47B9-9512-D1207654B07E}.Release|Any CPU.Build.0 = Release|x64
+		{E128F48A-6A39-4699-89D4-39A97974F533}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{E128F48A-6A39-4699-89D4-39A97974F533}.Debug|Any CPU.Build.0 = Debug|x86
+		{E128F48A-6A39-4699-89D4-39A97974F533}.Release|Any CPU.ActiveCfg = Release|x86
+		{E128F48A-6A39-4699-89D4-39A97974F533}.Release|Any CPU.Build.0 = Release|x86
+		{A24706E2-EB50-4716-B036-C747462C4E93}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{A24706E2-EB50-4716-B036-C747462C4E93}.Debug|Any CPU.Build.0 = Debug|x64
+		{A24706E2-EB50-4716-B036-C747462C4E93}.Release|Any CPU.ActiveCfg = Release|x64
+		{A24706E2-EB50-4716-B036-C747462C4E93}.Release|Any CPU.Build.0 = Release|x64
+		{73BE9C7A-F7E8-4CD3-A48C-6CBB541DAED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73BE9C7A-F7E8-4CD3-A48C-6CBB541DAED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73BE9C7A-F7E8-4CD3-A48C-6CBB541DAED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73BE9C7A-F7E8-4CD3-A48C-6CBB541DAED6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {380684B3-1FA9-49A4-A91F-A720DEEDCB28}
+	EndGlobalSection
+EndGlobal
