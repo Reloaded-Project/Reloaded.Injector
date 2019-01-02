@@ -16,8 +16,7 @@
 	</a>
 	<!-- Build Status -->
 	<a href="https://ci.appveyor.com/project/sewer56lol/reloaded-injector">
-		<img src="https://ci.appveyor.com/api/projects/status/xtq8rtwqh4cw5jg2/branch/master?svg=true
-" alt="Build Status" />
+		<img src="https://ci.appveyor.com/api/projects/status/xtq8rtwqh4cw5jg2?svg=true" alt="Build Status" />
 	</a>
 </div>
 
