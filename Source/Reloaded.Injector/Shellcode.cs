@@ -99,6 +99,11 @@ namespace Reloaded.Injector
             _assembler    = null;
         }
 
+        ~Shellcode()
+        {
+            Dispose();
+        }
+
         /* Call Shellcode */
 
         public long GetProcAddress(long hModule, string functionName)

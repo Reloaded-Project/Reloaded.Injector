@@ -39,6 +39,11 @@ namespace Reloaded.Injector
             _shellCode      = new Shellcode(process);
         }
 
+        ~Injector()
+        {
+            Dispose();
+        }
+
         /// <summary>
         /// Injects a DLL into the target process.
         /// </summary>
