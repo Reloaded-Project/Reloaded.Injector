@@ -44,6 +44,14 @@ namespace Reloaded.Injector
             Dispose();
         }
 
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            _circularBuffer?.Dispose();
+            _shellCode?.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
         /// <summary>
         /// Injects a DLL into the target process.
         /// </summary>
@@ -192,13 +200,5 @@ namespace Reloaded.Injector
                 throw new DllInjectorException("The target process to inject to has exited, it is no longer running.");
         }
 
-        /* Overrides */
-
-        /// <summary/>
-        public void Dispose()
-        {
-            _circularBuffer?.Dispose();
-            _shellCode?.Dispose();
-        }
     }
 }

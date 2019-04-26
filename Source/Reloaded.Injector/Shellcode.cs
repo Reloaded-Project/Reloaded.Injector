@@ -104,6 +104,15 @@ namespace Reloaded.Injector
             Dispose();
         }
 
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            _assembler?.Dispose();
+            _privateBuffer?.Dispose();
+            _circularBuffer?.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
         /* Call Shellcode */
 
         public long GetProcAddress(long hModule, string functionName)
@@ -288,14 +297,6 @@ namespace Reloaded.Injector
             AMD64 = 34404,
             I386 = 332,
             IA64 = 512
-        }
-
-        /// <summary/>
-        public void Dispose()
-        {
-            _assembler?.Dispose();
-            _privateBuffer?.Dispose();
-            _circularBuffer?.Dispose();
         }
     }
 }
