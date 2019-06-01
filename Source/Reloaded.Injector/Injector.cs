@@ -99,15 +99,18 @@ namespace Reloaded.Injector
         ///     A parameter to pass onto the function. It is written into memory and a pointer to it
         ///     is passed to the target function.
         /// </param>
+        /// <param name="marshalParameter">
+        ///     Set to true to enable marshalling of the parameter being passed into the receiving application.
+        /// </param>
         /// <remarks>
         ///     Passing of only 1 parameter is supported. If you want to pass multiple parameters, pass a struct
         ///     This function passes a pointer to your parameter to the target function.
         ///     A parameter must be passed and the target method must expect it. This is a limitation of CreateRemoteThread.
         /// </remarks>
         /// <returns>A 32bit truncated exit code/return value. CreateRemoteThread does not support 64bit returns.</returns>
-        public int CallFunction<TStruct>(string module, string functionToExecute, TStruct parameter = default(TStruct))
+        public int CallFunction<TStruct>(string module, string functionToExecute, TStruct parameter = default(TStruct), bool marshalParameter = false)
         {
-            IntPtr parameterPtr = _circularBuffer.Add(ref parameter);
+            IntPtr parameterPtr = _circularBuffer.Add(ref parameter, marshalParameter);
             return CallFunction(module, functionToExecute, (long)parameterPtr);
         }
 
