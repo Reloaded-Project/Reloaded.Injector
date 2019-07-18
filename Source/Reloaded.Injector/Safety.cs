@@ -20,7 +20,7 @@ namespace Reloaded.Injector
 
             try
             {
-                if (watch.ElapsedMilliseconds < timeout)
+                while (watch.ElapsedMilliseconds < timeout)
                     modules = ModuleCollector.CollectModules(targetProcess);
             }
             catch { /* ignored */ }
