@@ -18,10 +18,13 @@ namespace Reloaded.Injector
     /// Builds the shellcode inside a target process which can be used to
     /// call LoadLibrary and GetProcAddress inside a remote process.
     /// </summary>
-    internal class Shellcode : IDisposable
+    public class Shellcode : IDisposable
     {
         /* Setup/Build Shellcode */
-        public  long        Kernel32Handle { get; } /* Address of Kernel32 in remote process. */
+        public  long        Kernel32Handle      { get; }                /* Address of Kernel32 in remote process. */
+        public  long        LoadLibraryAddress  { get; private set; }   /* Address of LoadLibrary function. */
+        public  long        GetProcAddressAddress { get; private set; } /* Address of GetProcAddress function. */
+
         private uint        _loadLibraryWOffset;    /* Address of LoadLibraryW in remote process. */
         private uint        _getProcAddressOffset;  /* Address of GetProcAddress in remote process. */
         private MachineType _machineType;           /* Is remote process 64 or 32bit? */
@@ -145,8 +148,9 @@ namespace Reloaded.Injector
             // GetProcAddress(long hModule, char* lpProcName)
             // lpParameter: Address of first struct member.
             // Using stdcall calling convention.
-            long getProcAddressAddress = Kernel32Handle + _getProcAddressOffset;
-            IntPtr getProcAddressPtr   = _privateBuffer.Add(ref getProcAddressAddress);
+            long getProcAddressAddress  = Kernel32Handle + _getProcAddressOffset;
+            GetProcAddressAddress       = getProcAddressAddress;
+            IntPtr getProcAddressPtr    = _privateBuffer.Add(ref getProcAddressAddress);
 
             long dummy                    = 0;
             _getProcAddressReturnValuePtr = (long)_privateBuffer.Add(ref dummy);
@@ -172,8 +176,9 @@ namespace Reloaded.Injector
             // GetProcAddress(long hModule, char* lpProcName)
             // lpParameter: Address of first struct member.
             // Using Microsoft X64 calling convention.
-            long getProcAddressAddress = Kernel32Handle + _getProcAddressOffset;
-            IntPtr getProcAddressPtr = _privateBuffer.Add(ref getProcAddressAddress);
+            long getProcAddressAddress  = Kernel32Handle + _getProcAddressOffset;
+            GetProcAddressAddress       = getProcAddressAddress;
+            IntPtr getProcAddressPtr    = _privateBuffer.Add(ref getProcAddressAddress);
 
             long dummy = 0;
             _getProcAddressReturnValuePtr = (long)_privateBuffer.Add(ref dummy);
@@ -200,6 +205,7 @@ namespace Reloaded.Injector
         {
             // Using stdcall calling convention.
             long loadLibraryAddress = Kernel32Handle + _loadLibraryWOffset;
+            LoadLibraryAddress      = loadLibraryAddress;
             IntPtr loadLibraryPtr   = _privateBuffer.Add(ref loadLibraryAddress);
 
             long dummy = 0;
@@ -223,8 +229,9 @@ namespace Reloaded.Injector
         private void BuildLoadLibraryW64()
         {
             // Using Microsoft X64 calling convention.
-            long loadLibraryAddress   = Kernel32Handle + _loadLibraryWOffset;
-            IntPtr loadLibraryPtr     = _privateBuffer.Add(ref loadLibraryAddress);
+            long loadLibraryAddress     = Kernel32Handle + _loadLibraryWOffset;
+            LoadLibraryAddress          = loadLibraryAddress;
+            IntPtr loadLibraryPtr       = _privateBuffer.Add(ref loadLibraryAddress);
             
             long dummy = 0;
             _loadLibraryWReturnValuePtr = (long)_privateBuffer.Add(ref dummy);

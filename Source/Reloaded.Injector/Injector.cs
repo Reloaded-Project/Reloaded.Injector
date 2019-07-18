@@ -21,9 +21,13 @@ namespace Reloaded.Injector
         /// </summary>
         public bool HasExited => _process.HasExited;
 
-        private Shellcode _shellCode;               /* Call GetProcAddress and LoadLibraryW in remote process. */
-        private CircularBuffer _circularBuffer;     /* Used for calling foreign functions. */
-        private Process _process;                   /* Process to DLL Inject into. */
+        /// <summary>
+        /// Provides access to the raw GetProcAddress and LoadLibrary calls.
+        /// </summary>
+        public Shellcode ShellCode { get; private set; }    /* Call GetProcAddress and LoadLibraryW in remote process. */
+
+        private CircularBuffer _circularBuffer;             /* Used for calling foreign functions. */
+        private Process _process;                           /* Process to DLL Inject into. */
 
         /// <summary>
         /// Initializes the DLL Injector.
@@ -36,7 +40,7 @@ namespace Reloaded.Injector
             // Initiate target process.
             _process        = process;
             _circularBuffer = new CircularBuffer(4096, new ExternalMemory(process));
-            _shellCode      = new Shellcode(process);
+            ShellCode      = new Shellcode(process);
         }
 
         ~Injector()
@@ -48,7 +52,7 @@ namespace Reloaded.Injector
         public void Dispose()
         {
             _circularBuffer?.Dispose();
-            _shellCode?.Dispose();
+            ShellCode?.Dispose();
             GC.SuppressFinalize(this);
         }
 
@@ -68,7 +72,7 @@ namespace Reloaded.Injector
             if (moduleHandle != IntPtr.Zero)
                 return (long)moduleHandle;
 
-            long address = _shellCode.LoadLibraryW(modulePath);
+            long address = ShellCode.LoadLibraryW(modulePath);
             
             return address;
         }
@@ -86,7 +90,7 @@ namespace Reloaded.Injector
             if (moduleHandle == IntPtr.Zero)
                 throw new DllInjectorException("Module not found in target process.");
 
-            return _shellCode.GetProcAddress((long)moduleHandle, functionToExecute);
+            return ShellCode.GetProcAddress((long)moduleHandle, functionToExecute);
         }
 
         /// <summary>
@@ -138,7 +142,7 @@ namespace Reloaded.Injector
             if (moduleHandle == IntPtr.Zero)
                 return false;
 
-            long methodAddress  = _shellCode.GetProcAddress(_shellCode.Kernel32Handle, "FreeLibrary");
+            long methodAddress  = ShellCode.GetProcAddress(ShellCode.Kernel32Handle, "FreeLibrary");
             
             int result = CallRemoteFunction(_process.Handle, (IntPtr)methodAddress, moduleHandle);
             return Convert.ToBoolean(result);
