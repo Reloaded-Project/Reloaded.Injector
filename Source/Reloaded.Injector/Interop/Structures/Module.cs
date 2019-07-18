@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Reloaded.Injector.Interop.Structures
 {
-    internal class Module
+    public class Module
     {
         public string ModulePath    { get; set; }
         public IntPtr BaseAddress   { get; set; }

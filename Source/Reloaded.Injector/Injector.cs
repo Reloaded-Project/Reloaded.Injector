@@ -35,12 +35,10 @@ namespace Reloaded.Injector
         /// <param name="process">The process to inject DLLs into.</param>
         public Injector(Process process)
         {
-            Safety.WaitForModuleInitialization(process);
-
             // Initiate target process.
             _process        = process;
             _circularBuffer = new CircularBuffer(4096, new ExternalMemory(process));
-            ShellCode      = new Shellcode(process);
+            ShellCode       = new Shellcode(process);
         }
 
         ~Injector()
@@ -156,7 +154,7 @@ namespace Reloaded.Injector
         public IntPtr GetModuleHandleFromPath(string modulePath)
         {
             string fullPath = Path.GetFullPath(modulePath);
-            foreach (var module in ModuleCollector.CollectModules(_process))
+            foreach (var module in Safety.TryGetModules(_process))
             {
                 if (Path.GetFullPath(module.ModulePath) == fullPath)
                     return module.BaseAddress;
@@ -172,7 +170,7 @@ namespace Reloaded.Injector
         /// <returns>0 if the operation fails, else an address.</returns>
         public IntPtr GetModuleHandleFromName(string moduleName)
         {
-            foreach (var module in ModuleCollector.CollectModules(_process))
+            foreach (var module in Safety.TryGetModules(_process))
             {
                 if (Path.GetFileName(module.ModulePath) == moduleName)
                     return module.BaseAddress;

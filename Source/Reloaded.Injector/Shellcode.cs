@@ -33,8 +33,8 @@ namespace Reloaded.Injector
         private Assembler.Assembler _assembler;     /* Provides JIT Assembly of x86/x64 mnemonics.        */
         private PrivateMemoryBuffer _privateBuffer; /* Provides us with somewhere to write our shellcode. */
 
-        /* Parm Helpers */
-        private ExternalMemory      _memory;        /* Provides access to other process' memory. */
+        /* Perm Helpers */
+        private ExternalMemory      _memory;        /* Provides access to other process' memory.          */
         private CircularBuffer      _circularBuffer;/* For passing in our parameters to shellcode.        */
         private Process             _targetProcess; /* The process we will be calling functions in.       */
 
@@ -52,8 +52,6 @@ namespace Reloaded.Injector
         /// <param name="targetProcess">Process inside which to execute.</param>
         public Shellcode(Process targetProcess)
         {
-            Safety.WaitForModuleInitialization(targetProcess);
-
             _privateBuffer  = new MemoryBufferHelper(targetProcess).CreatePrivateMemoryBuffer(4096);
             _assembler      = new Assembler.Assembler();
             _memory         = new ExternalMemory(targetProcess);
@@ -65,7 +63,7 @@ namespace Reloaded.Injector
             _machineType        = (MachineType) targetPeFile.ImageNtHeaders.FileHeader.Machine;
 
             // Get Kernel32 load address in target.
-            Module kernel32Module = GetKernel32InRemoteProcess(targetProcess);
+            Module kernel32Module   = GetKernel32InRemoteProcess(targetProcess);
             Kernel32Handle          = (long) kernel32Module.BaseAddress;
 
             // We need to change the module path if 32bit process; because the given path is not true,
@@ -277,7 +275,7 @@ namespace Reloaded.Injector
 
         private Module GetKernel32InRemoteProcess(Process process)
         {
-            foreach (Module module in ModuleCollector.CollectModules(process))
+            foreach (Module module in Safety.TryGetModules(process))
                 if (Path.GetFileName(module.ModulePath).Equals("KERNEL32.DLL", StringComparison.InvariantCultureIgnoreCase))
                     return module;
 
