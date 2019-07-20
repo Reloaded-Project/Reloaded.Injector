@@ -10,6 +10,8 @@ namespace Reloaded.Injector.Interop
 {
     internal static unsafe class ModuleCollector
     {
+        private static StringBuilder _modulePathBuilder = new StringBuilder(32767);
+
         /// <exception cref="DllInjectorException">Bytes to fill module list returned 0. The process is probably not yet initialized.</exception>
         public static List<Module> CollectModules(Process process)
         {
@@ -17,7 +19,6 @@ namespace Reloaded.Injector.Interop
             IntPtr[] modulePointers       = new IntPtr[0];
             int numberOfModules;
             int bytesNeeded;
-
 
             // Determine number of modules.
             if (!EnumProcessModulesEx(process.Handle, modulePointers, 0, out bytesNeeded, (uint)ModuleFilter.ListModulesAll))
@@ -34,14 +35,13 @@ namespace Reloaded.Injector.Interop
             {
                 for (int x = 0; x < numberOfModules; x++)
                 {
-                    StringBuilder modulePathBuilder = new StringBuilder(32767);
                     ModuleInformation moduleInformation = new ModuleInformation();
 
-                    GetModuleFileNameEx(process.Handle, modulePointers[x], modulePathBuilder, (uint)(modulePathBuilder.Capacity));
+                    GetModuleFileNameEx(process.Handle, modulePointers[x], _modulePathBuilder, (uint)(_modulePathBuilder.Capacity));
                     GetModuleInformation(process.Handle, modulePointers[x], out moduleInformation, (uint)sizeof(ModuleInformation));
 
                     // Convert to a normalized module and add it to our list
-                    string modulePath = modulePathBuilder.ToString();
+                    string modulePath = _modulePathBuilder.ToString();
                     Module module = new Module(modulePath, moduleInformation.lpBaseOfDll, moduleInformation.SizeOfImage, moduleInformation.EntryPoint);
                     collectedModules.Add(module);
                 }
