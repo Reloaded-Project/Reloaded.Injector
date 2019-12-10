@@ -13,7 +13,7 @@
     <RepositoryUrl>https://github.com/Reloaded-Project/Reloaded.Injector</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>1.2.3</Version>
+    <Version>1.2.4</Version>
     <Copyright>LGPLV3</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
@@ -41,12 +41,12 @@
 
   <ItemGroup>
     <PackageReference Include="PeNet" Version="0.8.1" />
-    <PackageReference Include="Reloaded.Assembler" Version="1.0.6" >
+    <PackageReference Include="Reloaded.Assembler" Version="1.*" >
 	  <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>None</PrivateAssets>
-	</PackageReference>
-    <PackageReference Include="Reloaded.Memory" Version="1.4.1" />
-    <PackageReference Include="Reloaded.Memory.Buffers" Version="1.2.0" />
+	  </PackageReference>
+    <PackageReference Include="Reloaded.Memory" Version="2.*" />
+    <PackageReference Include="Reloaded.Memory.Buffers" Version="1.*" />
   </ItemGroup>
 
   <ItemGroup>
