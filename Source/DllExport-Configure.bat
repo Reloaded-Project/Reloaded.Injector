@@ -1,1 +1,0 @@
-DllExport.bat -action Configure

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using NXPorts.Attributes;
 using Reloaded.Injector.Shared;
 
 namespace Reloaded.Injector.Tests.Dll64
@@ -6,25 +7,25 @@ namespace Reloaded.Injector.Tests.Dll64
     [ExcludeFromCodeCoverage]
     public unsafe class Calculator
     {
-        [DllExport]
+        [Export]
         public static int Add(TwoNumbers* twoNumbers)
         {
             return twoNumbers->A + twoNumbers->B;
         }
 
-        [DllExport]
+        [Export]
         public static int Subtract(TwoNumbers* twoNumbers)
         {
             return twoNumbers->A - twoNumbers->B;
         }
 
-        [DllExport]
+        [Export]
         public static int Multiply(TwoNumbers* twoNumbers)
         {
             return twoNumbers->A * twoNumbers->B;
         }
 
-        [DllExport]
+        [Export]
         public static int Divide(TwoNumbers* twoNumbers)
         {
             return twoNumbers->A / twoNumbers->B;
