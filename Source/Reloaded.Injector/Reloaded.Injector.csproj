@@ -13,27 +13,14 @@
     <RepositoryUrl>https://github.com/Reloaded-Project/Reloaded.Injector</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>1.2.4</Version>
+    <Version>1.2.5</Version>
     <Copyright>LGPLV3</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>Icon.png</PackageIcon>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Injector.cs~RF132a383.TMP" />
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -51,26 +38,6 @@
       <PrivateAssets>None</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Reloaded.Memory.Buffers" Version="2.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <NativeLibs Remove="Shellcode.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <NativeLibs Remove="CheckArchitecture.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <NativeLibs Remove="ModuleCollector.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <NativeLibs Remove="Safety.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <NativeLibs Remove="CuteLewdNekos.cs" />
   </ItemGroup>
 
 </Project>
