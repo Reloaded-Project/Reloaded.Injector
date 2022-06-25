@@ -124,7 +124,7 @@ namespace Reloaded.Injector
 
             WaitForSingleObject(threadHandle, uint.MaxValue);
 
-            _memory.Read((IntPtr) _getProcAddressReturnValuePtr, out long value);
+            _memory.Read((UIntPtr)_getProcAddressReturnValuePtr, out long value);
             return value;
         }
 
@@ -135,7 +135,7 @@ namespace Reloaded.Injector
 
             WaitForSingleObject(threadHandle, uint.MaxValue);
 
-            _memory.Read((IntPtr) _loadLibraryWReturnValuePtr, out long value);
+            _memory.Read((UIntPtr)_loadLibraryWReturnValuePtr, out long value);
             return value;
         }
 
@@ -148,7 +148,7 @@ namespace Reloaded.Injector
             // Using stdcall calling convention.
             long getProcAddressAddress  = Kernel32Handle + _getProcAddressOffset;
             GetProcAddressAddress       = getProcAddressAddress;
-            IntPtr getProcAddressPtr    = _privateBuffer.Add(ref getProcAddressAddress);
+            var getProcAddressPtr       = _privateBuffer.Add(ref getProcAddressAddress);
 
             long dummy                    = 0;
             _getProcAddressReturnValuePtr = (long)_privateBuffer.Add(ref dummy);
@@ -159,7 +159,7 @@ namespace Reloaded.Injector
                 "mov eax, dword [esp + 4]", // CreateRemoteThread lpParameter
                 "push dword [eax + 8]",     // lpProcName
                 "push dword [eax + 0]",     // hModule
-               $"call dword [dword 0x{getProcAddressPtr.ToString("X")}]",
+               $"call dword [dword {getProcAddressPtr}]",
                $"mov dword [dword 0x{_getProcAddressReturnValuePtr.ToString("X")}], eax",
                 "ret 4"                     // Restore stack ptr. (Callee cleanup)
             };
@@ -176,7 +176,7 @@ namespace Reloaded.Injector
             // Using Microsoft X64 calling convention.
             long getProcAddressAddress  = Kernel32Handle + _getProcAddressOffset;
             GetProcAddressAddress       = getProcAddressAddress;
-            IntPtr getProcAddressPtr    = _privateBuffer.Add(ref getProcAddressAddress);
+            var getProcAddressPtr       = _privateBuffer.Add(ref getProcAddressAddress);
 
             long dummy = 0;
             _getProcAddressReturnValuePtr = (long)_privateBuffer.Add(ref dummy);
@@ -188,7 +188,7 @@ namespace Reloaded.Injector
                 "sub rsp, 40",                        // Re-align stack to 16 byte boundary +32 shadow space
                 "mov rdx, qword [qword rcx + 8]",     // lpProcName
                 "mov rcx, qword [qword rcx + 0]",     // hModule
-                $"call qword [qword 0x{getProcAddressPtr.ToString("X")}]",
+                $"call qword [qword {getProcAddressPtr}]",
                 $"mov qword [qword 0x{_getProcAddressReturnValuePtr.ToString("X")}], rax",
                 "add rsp, 40",                        // Re-align stack to 16 byte boundary + shadow space.
                 "ret"                     // Restore stack ptr. (Callee cleanup)
@@ -204,7 +204,7 @@ namespace Reloaded.Injector
             // Using stdcall calling convention.
             long loadLibraryAddress = Kernel32Handle + _loadLibraryWOffset;
             LoadLibraryAddress      = loadLibraryAddress;
-            IntPtr loadLibraryPtr   = _privateBuffer.Add(ref loadLibraryAddress);
+            var loadLibraryPtr      = _privateBuffer.Add(ref loadLibraryAddress);
 
             long dummy = 0;
             _loadLibraryWReturnValuePtr = (long)_privateBuffer.Add(ref dummy);
@@ -213,7 +213,7 @@ namespace Reloaded.Injector
             {
                $"use32",
                 "push dword [ESP + 4]",     // CreateRemoteThread lpParameter
-               $"call dword [dword 0x{loadLibraryPtr.ToString("X")}]",
+               $"call dword [dword {loadLibraryPtr}]",
                $"mov dword [dword 0x{_loadLibraryWReturnValuePtr.ToString("X")}], eax",
                 "ret 4"                     // Restore stack ptr. (Callee cleanup)
             };
@@ -229,7 +229,7 @@ namespace Reloaded.Injector
             // Using Microsoft X64 calling convention.
             long loadLibraryAddress     = Kernel32Handle + _loadLibraryWOffset;
             LoadLibraryAddress          = loadLibraryAddress;
-            IntPtr loadLibraryPtr       = _privateBuffer.Add(ref loadLibraryAddress);
+            var loadLibraryPtr          = _privateBuffer.Add(ref loadLibraryAddress);
             
             long dummy = 0;
             _loadLibraryWReturnValuePtr = (long)_privateBuffer.Add(ref dummy);
@@ -238,7 +238,7 @@ namespace Reloaded.Injector
             {
                 $"use64",
                 "sub rsp, 40",                                // Re-align stack to 16 byte boundary + shadow space.
-                $"call qword [qword 0x{loadLibraryPtr.ToString("X")}]", // CreateRemoteThread lpParameter with string already in ECX.
+                $"call qword [qword {loadLibraryPtr}]", // CreateRemoteThread lpParameter with string already in ECX.
                 $"mov qword [qword 0x{_loadLibraryWReturnValuePtr.ToString("X")}], rax",
                 "add rsp, 40",                                // Re-align stack to 16 byte boundary + shadow space.
                 "ret"                                         // Restore stack ptr. (Callee cleanup)

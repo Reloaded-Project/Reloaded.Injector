@@ -110,9 +110,9 @@ namespace Reloaded.Injector
         ///     A parameter must be passed and the target method must expect it. This is a limitation of CreateRemoteThread.
         /// </remarks>
         /// <returns>A 32bit truncated exit code/return value. CreateRemoteThread does not support 64bit returns.</returns>
-        public int CallFunction<TStruct>(string module, string functionToExecute, TStruct parameter = default(TStruct), bool marshalParameter = false)
+        public int CallFunction<TStruct>(string module, string functionToExecute, TStruct parameter = default, bool marshalParameter = false)
         {
-            IntPtr parameterPtr = _circularBuffer.Add(ref parameter, marshalParameter);
+            var parameterPtr = _circularBuffer.Add(ref parameter, marshalParameter);
             return CallFunction(module, functionToExecute, (long)parameterPtr);
         }
 
