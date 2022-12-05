@@ -68,7 +68,7 @@ namespace Reloaded.Injector
 
             // We need to change the module path if 32bit process; because the given path is not true,
             // it is being actively redirected by Windows on Windows 64 (WoW64)
-            if (_machineType == MachineType.I386)
+            if (_machineType == MachineType.I386 && Environment.Is64BitOperatingSystem)
             {
                 StringBuilder builder = new StringBuilder(256);
                 GetSystemWow64Directory(builder, (uint)builder.Capacity);
