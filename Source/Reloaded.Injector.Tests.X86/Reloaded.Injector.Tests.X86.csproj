@@ -2,10 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>NET472</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <Platforms>AnyCPU;x86</Platforms>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">

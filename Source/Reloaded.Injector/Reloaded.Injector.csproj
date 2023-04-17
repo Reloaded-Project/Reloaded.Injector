@@ -7,17 +7,16 @@
     <Product>Reloaded</Product>
     <Description>Advanced DLL Injector capable of injecting x86 DLLs to x86 process from x64 processes.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Reloaded-Project/Reloaded.Injector</PackageProjectUrl>
-    <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/Reloaded-Project/Reloaded.Injector</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>1.2.5</Version>
+    <Version>2.0.0</Version>
     <Copyright>LGPLV3</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>Icon.png</PackageIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,6 +37,12 @@
       <PrivateAssets>None</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Reloaded.Memory.Buffers" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations">
+      <HintPath>..\..\..\..\..\..\..\Program Files\JetBrains\JetBrains Rider 2022.3.1\lib\ReSharperHost\TestRunner\net472\JetBrains.Annotations.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
