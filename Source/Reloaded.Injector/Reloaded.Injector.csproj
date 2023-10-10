@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0; NET472</TargetFrameworks>
@@ -13,9 +13,10 @@
     <RepositoryUrl>https://github.com/Reloaded-Project/Reloaded.Injector</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>1.2.5</Version>
+    <Version>1.2.117</Version>
     <Copyright>LGPLV3</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+	  <LangVersion>Preview</LangVersion>
     <PackageIcon>Icon.png</PackageIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -32,12 +33,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="PeNet" Version="0.8.1" />
-    <PackageReference Include="Reloaded.Assembler" Version="1.0.14">
+    <PackageReference Include="PeNet" Version="4.0.1" />
+    <PackageReference Include="Reloaded.Assembler" Version="1.0.15">
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>None</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Reloaded.Memory.Buffers" Version="2.0.0" />
+    <PackageReference Include="Reloaded.Memory.Buffers" Version="3.0.4" />
   </ItemGroup>
 
 </Project>
