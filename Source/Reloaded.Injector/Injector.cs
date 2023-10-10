@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using Reloaded.Injector.Exceptions;
 using Reloaded.Injector.Interop;
-using Reloaded.Memory.Sources;
+using Reloaded.Memory;
+using Reloaded.Memory.Structs;
 using Reloaded.Memory.Utilities;
 using static Reloaded.Injector.Kernel32.Kernel32;
 
@@ -26,7 +29,9 @@ namespace Reloaded.Injector
         /// </summary>
         public Shellcode ShellCode { get; private set; }    /* Call GetProcAddress and LoadLibraryW in remote process. */
 
-        private CircularBuffer _circularBuffer;             /* Used for calling foreign functions. */
+        private PrivateMemoryBufferCompat _circularBuffer;             /* Used for calling foreign functions. */
+        //private MemoryAllocation _circularBufferSource;
+
         private Process _process;                           /* Process to DLL Inject into. */
 
         /// <summary>
@@ -36,11 +41,12 @@ namespace Reloaded.Injector
         public Injector(Process process)
         {
             // Initiate target process.
-            _process        = process;
-            _circularBuffer = new CircularBuffer(4096, new ExternalMemory(process));
-            ShellCode       = new Shellcode(process);
+            _process = process;
+            _procMemory = new ExternalMemory(process);
+            _circularBuffer = new(process, Shellcode.CircularBufferSize);
+            ShellCode = new Shellcode(process);
         }
-
+        private ExternalMemory _procMemory;
         ~Injector()
         {
             Dispose();
@@ -49,8 +55,9 @@ namespace Reloaded.Injector
         /// <inheritdoc/>
         public void Dispose()
         {
-            _circularBuffer?.Dispose();
+
             ShellCode?.Dispose();
+            _circularBuffer?.Dispose();
             GC.SuppressFinalize(this);
         }
 
@@ -58,15 +65,16 @@ namespace Reloaded.Injector
         /// Injects a DLL into the target process.
         /// </summary>
         /// <param name="modulePath">The absolute path to your DLL to be injected.</param>
+        /// <param name="msTimeout">Miliseconds to potentially wait for things like module loading on a new proc.</param>
         /// <remarks>This function executes LoadLibraryW inside the remote process.</remarks>
         /// <exception cref="DllInjectorException">The target process is not running.</exception>
         /// <returns>The address/handle of the loaded in library inside the target process. Zero if the operation failed.</returns>
-        public long Inject(string modulePath)
+        public long Inject(string modulePath, int msTimeout=3000)
         {
             // Error checking.
             AssertProcessNotRunning();
 
-            var moduleHandle = IsAbsolutePath(modulePath) ? GetModuleHandleFromPath(modulePath) : GetModuleHandleFromName(modulePath);
+            var moduleHandle = IsAbsolutePath(modulePath) ? GetModuleHandleFromPath(modulePath, msTimeout) : GetModuleHandleFromName(modulePath, msTimeout);
             if (moduleHandle != IntPtr.Zero)
                 return (long)moduleHandle;
 
@@ -110,10 +118,16 @@ namespace Reloaded.Injector
         ///     A parameter must be passed and the target method must expect it. This is a limitation of CreateRemoteThread.
         /// </remarks>
         /// <returns>A 32bit truncated exit code/return value. CreateRemoteThread does not support 64bit returns.</returns>
-        public int CallFunction<TStruct>(string module, string functionToExecute, TStruct parameter = default, bool marshalParameter = false)
+        public unsafe int CallFunction<TStruct>(string module, string functionToExecute, TStruct parameter = default) where TStruct : struct
+        {
+
+            var parameterPtr = _circularBuffer.Add(ref parameter);
+            return CallFunctionPtr(module, functionToExecute, (UInt64)parameterPtr);
+        }
+        public int CallFunction<TStruct>(string module, string functionToExecute, TStruct parameter = default, bool marshalParameter = false) where TStruct : unmanaged
         {
             var parameterPtr = _circularBuffer.Add(ref parameter, marshalParameter);
-            return CallFunction(module, functionToExecute, (long)parameterPtr);
+            return CallFunctionPtr(module, functionToExecute, (UInt64)parameterPtr);
         }
 
         /// <summary>
@@ -123,7 +137,7 @@ namespace Reloaded.Injector
         /// <param name="functionToExecute">The function of that module to be executed.</param>
         /// <param name="parameterPtr">Raw value/pointer to parameter to pass to the target function.</param>
         /// <returns>A 32bit truncated exit code/return value. CreateRemoteThread does not support 64bit returns.</returns>
-        public int CallFunction(string module, string functionToExecute, long parameterPtr)
+        public int CallFunctionPtr(string module, string functionToExecute, UInt64 parameterPtr)
         {
             long methodAddress = GetFunctionAddress(module, functionToExecute);
             return CallRemoteFunction(_process.Handle, (IntPtr)methodAddress, (IntPtr) parameterPtr);
@@ -151,10 +165,10 @@ namespace Reloaded.Injector
         /// </summary>
         /// <param name="modulePath">The absolute path of the module (including extension).</param>
         /// <returns>0 if the operation fails, else an address.</returns>
-        public IntPtr GetModuleHandleFromPath(string modulePath)
+        public IntPtr GetModuleHandleFromPath(string modulePath, int msTimeout=3000)
         {
             string fullPath = Path.GetFullPath(modulePath);
-            foreach (var module in Safety.TryGetModules(_process))
+            foreach (var module in Safety.TryGetModules(_process, msTimeout))
             {
                 if (Path.GetFullPath(module.ModulePath) == fullPath)
                     return module.BaseAddress;
@@ -168,9 +182,9 @@ namespace Reloaded.Injector
         /// </summary>
         /// <param name="moduleName">The name of the module (including extension).</param>
         /// <returns>0 if the operation fails, else an address.</returns>
-        public IntPtr GetModuleHandleFromName(string moduleName)
+        public IntPtr GetModuleHandleFromName(string moduleName, int msTimeout=3000)
         {
-            foreach (var module in Safety.TryGetModules(_process))
+            foreach (var module in Safety.TryGetModules(_process, msTimeout))
             {
                 if (Path.GetFileName(module.ModulePath) == moduleName)
                     return module.BaseAddress;

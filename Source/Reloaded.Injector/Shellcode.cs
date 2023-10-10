@@ -1,15 +1,13 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using PeNet;
+using PeNet.Header.Pe;
 using Reloaded.Injector.Exceptions;
-using Reloaded.Injector.Interop;
 using Reloaded.Injector.Interop.Structures;
-using Reloaded.Memory.Buffers;
-using Reloaded.Memory.Sources;
-using Reloaded.Memory.Utilities;
+using Reloaded.Memory;
 using static Reloaded.Injector.Kernel32.Kernel32;
 
 namespace Reloaded.Injector
@@ -20,6 +18,11 @@ namespace Reloaded.Injector
     /// </summary>
     public class Shellcode : IDisposable
     {
+		public static nuint CircularBufferSize = 4096;
+		public static nuint PrivateBufferSize = 4096;//orig did 4096
+		public static bool AssemblyLargePtrFix = false;// THIS DOES NOT WORK but if the ptr to our memroy is too high the fasm call will fail so wil need to figure out a work around
+		internal const nuint minimumAddress = 65536u;
+		internal const int retryCount = 3;
         /* Setup/Build Shellcode */
         public  long        Kernel32Handle      { get; }                /* Address of Kernel32 in remote process. */
         public  long        LoadLibraryAddress  { get; private set; }   /* Address of LoadLibrary function. */
@@ -31,11 +34,12 @@ namespace Reloaded.Injector
 
         /* Temp Helpers */
         private Assembler.Assembler _assembler;     /* Provides JIT Assembly of x86/x64 mnemonics.        */
-        private PrivateMemoryBuffer _privateBuffer; /* Provides us with somewhere to write our shellcode. */
+        private PrivateMemoryBufferCompat _privateBuffer; /* Provides us with somewhere to write our shellcode. */
 
         /* Perm Helpers */
         private ExternalMemory      _memory;        /* Provides access to other process' memory.          */
-        private CircularBuffer      _circularBuffer;/* For passing in our parameters to shellcode.        */
+		private PrivateMemoryBufferCompat _circularBuffer; /* the actual circular buffer no longer works with external process memory */
+
         private Process             _targetProcess; /* The process we will be calling functions in.       */
 
         /* Final products. */ /* stdcall for x86, Microsoft for x64 */
@@ -52,15 +56,21 @@ namespace Reloaded.Injector
         /// <param name="targetProcess">Process inside which to execute.</param>
         public Shellcode(Process targetProcess)
         {
-            _privateBuffer  = new MemoryBufferHelper(targetProcess).CreatePrivateMemoryBuffer(4096);
+
+			_privateBuffer = new PrivateMemoryBufferCompat(targetProcess,PrivateBufferSize, true); 
             _assembler      = new Assembler.Assembler();
             _memory         = new ExternalMemory(targetProcess);
-            _circularBuffer = new CircularBuffer(4096, _memory);
+            _circularBuffer = new (targetProcess, CircularBufferSize);
             _targetProcess  = targetProcess;
 
             // Get arch of target process. 
             PeFile targetPeFile = new PeFile(targetProcess.Modules[0].FileName);
             _machineType        = (MachineType) targetPeFile.ImageNtHeaders.FileHeader.Machine;
+
+			if (_machineType == MachineType.I386 && Environment.Is64BitProcess) { //.net auto processes have 32 bit header even though they will end up running as 64 bit
+				if (IsWow64Process(targetProcess.Handle, out var is32Bit) && is32Bit == false)
+					_machineType = MachineType.AMD64;
+			}
 
             // Get Kernel32 load address in target.
             Module kernel32Module   = GetKernel32InRemoteProcess(targetProcess);
@@ -99,6 +109,9 @@ namespace Reloaded.Injector
             _assembler.Dispose();
             _assembler    = null;
         }
+        [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool IsWow64Process([In] IntPtr process, [Out] out bool wow64Process);
 
         ~Shellcode()
         {
@@ -188,17 +201,22 @@ namespace Reloaded.Injector
                 "sub rsp, 40",                        // Re-align stack to 16 byte boundary +32 shadow space
                 "mov rdx, qword [qword rcx + 8]",     // lpProcName
                 "mov rcx, qword [qword rcx + 0]",     // hModule
-                $"call qword [qword {getProcAddressPtr}]",
+                AssemblyLargePtrFix ? $"mov qword [qword {getProcAddressPtr}], rax": $"call qword [qword {getProcAddressPtr}]",// CreateRemoteThread lpParameter with string already in ECX.
+				
+				AssemblyLargePtrFix ? $"call rax" : "",
+
                 $"mov qword [qword 0x{_getProcAddressReturnValuePtr.ToString("X")}], rax",
                 "add rsp, 40",                        // Re-align stack to 16 byte boundary + shadow space.
                 "ret"                     // Restore stack ptr. (Callee cleanup)
             };
 
-
-            byte[] bytes = _assembler.Assemble(getProcAddress);
+			var bytes = GetASM("BuildGetProcAddress64", getProcAddress);
             _getProcAddressShellPtr = (long)_privateBuffer.Add(bytes);
         }
-
+		private byte[] GetASM(String for_what, params string[] lines) {
+            byte[] bytes = _assembler.Assemble(lines);
+			return bytes;
+		}
         private void BuildLoadLibraryW86()
         {
             // Using stdcall calling convention.
@@ -238,13 +256,14 @@ namespace Reloaded.Injector
             {
                 $"use64",
                 "sub rsp, 40",                                // Re-align stack to 16 byte boundary + shadow space.
-                $"call qword [qword {loadLibraryPtr}]", // CreateRemoteThread lpParameter with string already in ECX.
+                AssemblyLargePtrFix ? $"mov qword [qword {loadLibraryPtr}], rax" : $"call qword [qword {loadLibraryPtr}]", // CreateRemoteThread lpParameter with string already in ECX.  //seems to throw an error of value out of range for high bit addresses
+				AssemblyLargePtrFix ? $"call rax" : "", // CreateRemoteThread lpParameter with string already in ECX.
+
                 $"mov qword [qword 0x{_loadLibraryWReturnValuePtr.ToString("X")}], rax",
                 "add rsp, 40",                                // Re-align stack to 16 byte boundary + shadow space.
                 "ret"                                         // Restore stack ptr. (Callee cleanup)
             };
-
-            byte[] bytes = _assembler.Assemble(loadLibraryW);
+			var bytes = GetASM("BuildLoadLibraryW64", loadLibraryW);
             _loadLibraryWShellPtr = (long)_privateBuffer.Add(bytes);
         }
 
@@ -268,7 +287,8 @@ namespace Reloaded.Injector
         private long WriteNullTerminatedUnicodeString(string libraryPath)
         {
             byte[] libraryNameBytes = Encoding.Unicode.GetBytes(libraryPath + '\0');
-            return (long)_circularBuffer.Add(libraryNameBytes);
+            var adr =  _circularBuffer.Add(libraryNameBytes);
+			return (long)adr;
         }
 
         /* One off construction functions. */
