@@ -67,6 +67,11 @@ namespace Reloaded.Injector
             PeFile targetPeFile = new PeFile(targetProcess.Modules[0].FileName);
             _machineType        = (MachineType) targetPeFile.ImageNtHeaders.FileHeader.Machine;
 
+			if (_machineType == MachineType.I386 && Environment.Is64BitProcess) { //.net auto processes have 32 bit header even though they will end up running as 64 bit
+				if (IsWow64Process(targetProcess.Handle, out var is32Bit) && is32Bit == false)
+					_machineType = MachineType.AMD64;
+			}
+
             // Get Kernel32 load address in target.
             Module kernel32Module   = GetKernel32InRemoteProcess(targetProcess);
             Kernel32Handle          = (long) kernel32Module.BaseAddress;
@@ -104,6 +109,9 @@ namespace Reloaded.Injector
             _assembler.Dispose();
             _assembler    = null;
         }
+        [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool IsWow64Process([In] IntPtr process, [Out] out bool wow64Process);
 
         ~Shellcode()
         {
